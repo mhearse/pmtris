@@ -313,7 +313,6 @@ if __name__=='__main__':
         scoreboardstarty,                        \
         scoreboardstartx,                        \
     )
-    scoreboard.border(0)
 
     # Create nextpiece.
     nextpieceboard = myscreen.derwin(            \
@@ -322,18 +321,11 @@ if __name__=='__main__':
         nextpieceboardstarty,                    \
         nextpieceboardstartx,                    \
     )
-    nextpieceboard.border(0)
 
     scoreboard.addstr(                           \
         0,                                       \
         2,                                       \
-        '[Score]',                               \
-        curses.color_pair(colormap['WHITE_TXT']) \
-    )
-    nextpieceboard.addstr(                       \
-        0,                                       \
-        2,                                       \
-        '[Next]',                                \
+        'Score',                               \
         curses.color_pair(colormap['WHITE_TXT']) \
     )
     scoreboard.refresh()
@@ -357,6 +349,9 @@ if __name__=='__main__':
     # Declare our current piece.
     which = ''
 
+    # Declare our next piece.
+    nextwhich = ''
+
     # Clear intro screen and start game.
     gamebox.erase()
 
@@ -366,7 +361,12 @@ if __name__=='__main__':
         # This block is run If we collide or we
         # need to init a new tetrimino.  
         if blns['collide_btm'] or blns['init_active_piece']:
-            which = choice(tetriminos.keys())
+            if not which:
+                which = choice(tetriminos.keys())
+                nextwhich = choice(tetriminos.keys())
+            else:
+                which = nextwhich
+                nextwhich = choice(tetriminos.keys())
             blns['init_active_piece'] = True
             blns['collide_btm'] = False
 
@@ -408,6 +408,26 @@ if __name__=='__main__':
                             board[y_idx][x_idx] = 'x'
             tetrimino_indexes[which] = 0
             blns['init_active_piece'] = False
+
+            nextpieceboard.clear()
+            # Show the human the next piece.
+            newposition = tetriminos[nextwhich]['pos'][0]
+            for [y_idx, y_val] in enumerate(newposition):
+                for [x_idx, x_val] in reversed(list(enumerate(newposition[y_idx]))):
+                    if newposition[y_idx][x_idx]:
+                        nextpieceboard.addstr(                              \
+                            y_idx + 1,                                      \
+                            x_idx - 1,                                      \
+                            'x',                                            \
+                            curses.color_pair(tetriminos[nextwhich]['clr']) \
+                        )
+            nextpieceboard.addstr(                                          \
+                0,                                                          \
+                2,                                                          \
+                'Next',                                                   \
+                curses.color_pair(colormap['WHITE_TXT'])                    \
+            )
+            nextpieceboard.refresh()
 
         # Keep track of the location of our active piece.
         [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
@@ -589,6 +609,7 @@ if __name__=='__main__':
             for idx in completed:
                 del(board[idx])
                 board.insert(0, templist)
+            blns['init_active_piece'] = True
 
         # Reset booleans.
         blns['rotate'] = False
@@ -627,6 +648,9 @@ curses.endwin()
 
 # TODO
 # DO TESTING TO ENSURE LINE FILL WORKS
+# FOR EACH ITERATION OF BOTH THE LOGO AND 
+# BOARD LOOPS, CHECK WINDOW SIZE TO MAKE
+# SURE HUMAN HASN'T SHRUNK IT.
 
 # just use dash and pipe or whatever for border
 #nlines, ncols, beginy, beginx
