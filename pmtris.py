@@ -19,7 +19,8 @@ array/list, right?
 Stuff:
     - Consider using a 22 row board
     - Consider weighing random tetrimino selection
-    - Consider adding + grid markers on board (overlap)
+    - Add ghost tetrimino to bottom, so human knows
+      where it will land
 
 """
 
@@ -177,6 +178,40 @@ if __name__=='__main__':
         'clr' : colormap['CYAN']                      \
     }
 
+    # Init a dict to keep track of indexes.
+    tetrimino_indexes = {}
+    for i in tetriminos.keys():
+        tetrimino_indexes[i] = 0
+
+    # The status of our board will live here.
+    board = []
+
+    # Define where our board will live.
+    boardstartx = 1
+    boardstarty = 1
+
+    # Define where our scoreboard will live.
+    scoreboardstartx = 15
+    scoreboardstarty = 1
+
+    # Define where our nextpieceboard will live.
+    nextpieceboardstartx = 15
+    nextpieceboardstarty = 8
+
+    # The deminsions of the tetris grid.
+    boardymin = 0
+    boardymax = 20
+    boardxmin = 0
+    boardxmax = 10
+
+    # Init board.
+    templist = []
+    for i in range(boardymin, boardymax):
+        for j in range(boardxmin, boardxmax):
+            templist.append('')
+        board.append(templist)
+        templist = []
+
     # Init curses.
     myscreen = curses.initscr()
     # Non blocking.
@@ -189,9 +224,15 @@ if __name__=='__main__':
     curses.curs_set(0)
     # Enable processing of arrow keys.
     myscreen.keypad(1)
-    #grid = myscreen.derwin(22, 12, 5, 25)
-    #nlines, ncols, beginy, beginx
-    #grid.border(0)
+
+    # Create gamebox.
+    gamebox = myscreen.derwin(        \
+        boardymax + 1,                \
+        boardxmax + 1,                \
+        boardstarty,                  \
+        boardstartx,                  \
+    )
+    gamebox.border(0)
 
     # Init colors.
     curses.start_color()
@@ -208,28 +249,6 @@ if __name__=='__main__':
     curses.init_pair(10, curses.COLOR_RED,     curses.COLOR_BLACK)
     curses.init_pair(11, curses.COLOR_BLUE,    curses.COLOR_BLACK)
     curses.init_pair(12, curses.COLOR_GREEN,   curses.COLOR_BLACK)
-
-    # The status of our board will live here.
-    board = []
-
-    # The deminsions of the tetris grid.
-    boardymin = 0
-    boardymax = 20
-    boardxmin = 0
-    boardxmax = 10
-
-    # Init board.
-    templist = []
-    for i in range(boardymin, boardymax):
-        for j in range(boardxmin, boardxmax):
-            templist.append('')
-        board.append(templist)
-        templist = []
-
-    # Init a dict to keep track of indexes.
-    tetrimino_indexes = {}
-    for i in tetriminos.keys():
-        tetrimino_indexes[i] = 0
 
     logo = [            \
         ["  poor    "], \
@@ -267,11 +286,11 @@ if __name__=='__main__':
             exit(0)
         if event == ord('a'):
             break
-        # Starting coordinates. 
-        x = 25
-        y = 5
+
+        x = 0
+        y = 0
     
-        myscreen.erase()
+        gamebox.erase()
         for [y_idx, y_val] in enumerate(logo):
             for [x_idx, x_val] in enumerate(logo[y_idx]):
                 color = colormap['WHITE_TXT']
@@ -280,12 +299,45 @@ if __name__=='__main__':
                         color = colormap['RED_TXT']
                         if (time() - logo_blink_time) >= 4:
                             logo_blink_time = time()
-                myscreen.addstr(y, x, logo[y_idx][x_idx], curses.color_pair(color))
+                gamebox.addstr(y, x, logo[y_idx][x_idx], curses.color_pair(color))
                 x += 1
             y += 1
-            x = 25
-        myscreen.refresh()
-        sleep(1000/1000000.0)
+            x = 0
+        gamebox.refresh()
+        sleep(100/1000000.0)
+
+    # Create scoreboard.
+    scoreboard = myscreen.derwin(                \
+        5,                                       \
+        11,                                      \
+        scoreboardstarty,                        \
+        scoreboardstartx,                        \
+    )
+    scoreboard.border(0)
+
+    # Create nextpiece.
+    nextpieceboard = myscreen.derwin(            \
+        5,                                       \
+        11,                                      \
+        nextpieceboardstarty,                    \
+        nextpieceboardstartx,                    \
+    )
+    nextpieceboard.border(0)
+
+    scoreboard.addstr(                           \
+        0,                                       \
+        2,                                       \
+        '[Score]',                               \
+        curses.color_pair(colormap['WHITE_TXT']) \
+    )
+    nextpieceboard.addstr(                       \
+        0,                                       \
+        2,                                       \
+        '[Next]',                                \
+        curses.color_pair(colormap['WHITE_TXT']) \
+    )
+    scoreboard.refresh()
+    nextpieceboard.refresh()
 
     # Keep track of the last time a piece was
     # forced down one row.  For simplicity sake,
@@ -306,7 +358,7 @@ if __name__=='__main__':
     which = ''
 
     # Clear intro screen and start game.
-    myscreen.erase()
+    gamebox.erase()
 
     # Aguirre, the Wrath of God.
     # Begin our search for El Dorado.
@@ -346,7 +398,7 @@ if __name__=='__main__':
         if blns['init_active_piece']:
             position = tetriminos[which]['pos'][0]
             for [y_idx, y_val] in enumerate(position):
-                for [x_idx, x_val] in enumerate(position[y_idx]):
+                for [x_idx, x_val] in reversed(list(enumerate(position[y_idx]))):
                     if position[y_idx][x_idx]:
                         if board[y_idx][x_idx]:
                             # Can't init piece, game over.
@@ -357,13 +409,11 @@ if __name__=='__main__':
             tetrimino_indexes[which] = 0
             blns['init_active_piece'] = False
 
-        # x indicates the active tetrimino.
-        # For each iteration of the infinite while loop,
-        # we need to find the coordinates of the active piece.
+        # Keep track of the location of our active piece.
+        [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
         time_to_push = False
         if blns['slam'] or (time() - last_push_down) > 1:
             time_to_push = True
-        [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
 
         ##############################################
         # Check for collision with bottom.
@@ -545,11 +595,10 @@ if __name__=='__main__':
         blns['push_left'] = False
         blns['push_right'] = False
 
-        # Starting coordinates. 
-        x = 25
-        y = 5
+        x = 0
+        y = 0
     
-        myscreen.erase()
+        gamebox.erase()
         for outerrow in board:
             for innerrow in outerrow:
                 piece = innerrow
@@ -560,36 +609,24 @@ if __name__=='__main__':
                     color = colormap['BLACK']
                 else:
                     color = tetriminos[piece]['clr']
-                myscreen.addstr(y, x, innerrow, curses.color_pair(color))
+                gamebox.addstr(              \
+                    y,                       \
+                    x,                       \
+                    innerrow,                \
+                    curses.color_pair(color) \
+                )
                 x += 1
             y += 1
-            x = 25
-        myscreen.refresh()
+            x = 0
+        gamebox.refresh()
 
         if not blns['slam']:
-            sleep(1000/1000000.0)
+            sleep(100/1000000.0)
 
 curses.endwin()
 
 # TODO
 # DO TESTING TO ENSURE LINE FILL WORKS
 
-# 408 431... min max breaks
-
-#index => 1
-#[[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]]
-#index => 0
-#[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-# [0, 0, 0, 1, 1, 0, 0, 0, 0, 0]]
-#index => 1
-#[[0, 0, 0], [0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]
-#index => 0
-#[[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-#index => 1
-#[[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-
-
 # just use dash and pipe or whatever for border
+#nlines, ncols, beginy, beginx
