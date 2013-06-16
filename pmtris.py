@@ -193,10 +193,14 @@ if __name__=='__main__':
     # Define where our scoreboard will live.
     scoreboardstartx = 15
     scoreboardstarty = 1
+    scoreboardheight = 5
+    scoreboardwidth  = 11
 
     # Define where our nextpieceboard will live.
     nextpieceboardstartx = 15
     nextpieceboardstarty = 8
+    nextpieceboardheight = 5
+    nextpieceboardwidth  = 11
 
     # The deminsions of the tetris grid.
     boardymin = 0
@@ -225,15 +229,6 @@ if __name__=='__main__':
     # Enable processing of arrow keys.
     myscreen.keypad(1)
 
-    # Create gamebox.
-    gamebox = myscreen.derwin(        \
-        boardymax + 1,                \
-        boardxmax + 1,                \
-        boardstarty,                  \
-        boardstartx,                  \
-    )
-    gamebox.border(0)
-
     # Init colors.
     curses.start_color()
     curses.use_default_colors()
@@ -250,74 +245,27 @@ if __name__=='__main__':
     curses.init_pair(11, curses.COLOR_BLUE,    curses.COLOR_BLACK)
     curses.init_pair(12, curses.COLOR_GREEN,   curses.COLOR_BLACK)
 
-    logo = [            \
-        ["  poor    "], \
-        ["  man's   "], \
-        ["  tetris  "], \
-        ["          "], \
-        ["   .   .  "], \
-        [" ',     : "], \
-        ["`. `.  .: "], \
-        ["     `.:  "], \
-        ["   ,.:'`. "], \
-        ["  /'      "], \
-        ["          "], \
-        ["          "], \
-        ["/\ rotate "], \
-        ["<  left   "], \
-        [">  right  "], \
-        ["\/ slam   "], \
-        ["          "], \
-        ["[a] start "], \
-        ["[p] pause "], \
-        ["[q] quit  "], \
-    ]
-
-    logo_blink_time = time()
-    logo_y_max = 3
-    aart_y_max = 9
-    glitz = [ 'WHITE_TXT', 'RED_TXT', 'BLUE_TXT', 'GREEN_TXT' ]
-    glitz_idx = 0
-    # Show the human our logo.
-    while True:
-        event = myscreen.getch()
-        if event == ord('q'):
-            curses.endwin()
-            exit(0)
-        if event == ord('a'):
-            break
-
-        x = 0
-        y = 0
-    
-        gamebox.erase()
-        for [y_idx, y_val] in enumerate(logo):
-            for [x_idx, x_val] in enumerate(logo[y_idx]):
-                color = colormap['WHITE_TXT']
-                if y_idx <= logo_y_max:
-                    if (time() - logo_blink_time) >= 2:
-                        color = colormap['RED_TXT']
-                        if (time() - logo_blink_time) >= 4:
-                            logo_blink_time = time()
-                gamebox.addstr(y, x, logo[y_idx][x_idx], curses.color_pair(color))
-                x += 1
-            y += 1
-            x = 0
-        gamebox.refresh()
-        sleep(100/1000000.0)
+    # Create gamebox.
+    gamebox = myscreen.derwin(                   \
+        boardymax + 1,                           \
+        boardxmax + 1,                           \
+        boardstarty,                             \
+        boardstartx,                             \
+    )
+    gamebox.border(0)
 
     # Create scoreboard.
     scoreboard = myscreen.derwin(                \
-        5,                                       \
-        11,                                      \
+        scoreboardheight,                        \
+        scoreboardwidth,                         \
         scoreboardstarty,                        \
         scoreboardstartx,                        \
     )
 
     # Create nextpiece.
     nextpieceboard = myscreen.derwin(            \
-        5,                                       \
-        11,                                      \
+        nextpieceboardheight,                    \
+        nextpieceboardwidth,                     \
         nextpieceboardstarty,                    \
         nextpieceboardstartx,                    \
     )
@@ -325,7 +273,7 @@ if __name__=='__main__':
     scoreboard.addstr(                           \
         0,                                       \
         2,                                       \
-        'Score',                               \
+        'Score',                                 \
         curses.color_pair(colormap['WHITE_TXT']) \
     )
     scoreboard.refresh()
@@ -536,16 +484,13 @@ if __name__=='__main__':
             # Chop away columns until offset is same
             # For each column chopped, add blank one to end.
             while current_offset != default_offset:
-                print "DOING 0"
                 if current_offset > default_offset:
-                    print "DOING 1"
                     # Then we need to add a column to beginning and remove one from end.
                     for outerrow in temp_position:
                         outerrow.insert(0, 0)
                         outerrow.pop()
                     default_offset += 1
                 else:
-                    print "DOING 2"
                     # Then we need to remove a column from beginning and add one to end
                     for outerrow in temp_position:
                         outerrow.insert(-1, 0)
