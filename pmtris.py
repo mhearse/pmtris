@@ -24,6 +24,7 @@ Stuff:
 
 """
 
+import numpy
 import curses
 from sys import exit
 from random import choice 
@@ -72,116 +73,66 @@ if __name__=='__main__':
     # humans may easily read this code and make
     # changes to tetrimino layouts.
     tetriminos = {}
-    tetriminos['o'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['YELLOW']                    \
+    tetriminos['o'] = {            \
+        'pos' : [                  \
+                    [1, 1],        \
+                    [1, 1],        \
+                ],                 \
+        'clr' : colormap['YELLOW'] \
     }
-    tetriminos['z'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 1, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['RED']                       \
+    tetriminos['z'] = {            \
+        'pos' : [                  \
+                    [0, 0, 0],     \
+                    [1, 1, 0],     \
+                    [0, 1, 1],     \
+                ],                 \
+        'clr' : colormap['RED']    \
     }
-    tetriminos['i'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['BLUE']                      \
+    tetriminos['i'] = {            \
+        'pos' : [                  \
+                    [0, 0, 0, 0],  \
+                    [0, 0, 0, 0],  \
+                    [1, 1, 1, 1],  \
+                    [0, 0, 0, 0],  \
+                ],                 \
+        'clr' : colormap['BLUE']   \
     }
-    tetriminos['l'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['MAGENTA']                   \
+    tetriminos['l'] = {            \
+        'pos' : [                  \
+                    [1, 0, 0],     \
+                    [1, 0, 0],     \
+                    [1, 1, 0],     \
+                ],                 \
+        'clr' : colormap['MAGENTA']\
     }
-    tetriminos['j'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['WHITE']                     \
+    tetriminos['j'] = {            \
+        'pos' : [                  \
+                    [0, 1, 0],     \
+                    [0, 1, 0],     \
+                    [1, 1, 0],     \
+                ],                 \
+        'clr' : colormap['WHITE']  \
     }
-    tetriminos['s'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 0, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['GREEN']                     \
+    tetriminos['s'] = {            \
+        'pos' : [                  \
+                    [0, 0, 0],     \
+                    [0, 1, 1],     \
+                    [1, 1, 0],     \
+                ],                 \
+        'clr' : colormap['GREEN']  \
     }
-    tetriminos['t'] = {                               \
-        'pos' : [                                     \
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0]], \
-                    #
-                    [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],  \
-                     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]], \
-                ],                                    \
-        'clr' : colormap['CYAN']                      \
+    tetriminos['t'] = {            \
+        'pos' : [                  \
+                    [0, 0, 0],     \
+                    [1, 1, 1],     \
+                    [0, 1, 0],     \
+                ],                 \
+        'clr' : colormap['CYAN']   \
     }
 
-    # Init a dict to keep track of indexes.
-    tetrimino_indexes = {}
+    tetrimino_positions = {}
     for i in tetriminos.keys():
-        tetrimino_indexes[i] = 0
+        tetrimino_positions[i] = tetriminos[i]['pos']
 
     # The status of our board will live here.
     board = []
@@ -270,12 +221,6 @@ if __name__=='__main__':
         nextpieceboardstartx,                    \
     )
 
-    scoreboard.addstr(                           \
-        0,                                       \
-        2,                                       \
-        'Score',                                 \
-        curses.color_pair(colormap['WHITE_TXT']) \
-    )
     scoreboard.refresh()
     nextpieceboard.refresh()
 
@@ -293,6 +238,9 @@ if __name__=='__main__':
     blns['push_right'] = False
     blns['collide_btm'] = False
     blns['init_active_piece'] = True
+
+    # Declare our score.
+    score = 0
 
     # Declare our current piece.
     which = ''
@@ -344,38 +292,53 @@ if __name__=='__main__':
         # Initial draw of newly picked tetrimino.
         ##############################################
         if blns['init_active_piece']:
-            position = tetriminos[which]['pos'][0]
+            position = tetriminos[which]['pos']
+            tetrimino_positions[which] = position
             for [y_idx, y_val] in enumerate(position):
                 for [x_idx, x_val] in reversed(list(enumerate(position[y_idx]))):
                     if position[y_idx][x_idx]:
-                        if board[y_idx][x_idx]:
+                        if board[y_idx][x_idx + 3]:
                             # Can't init piece, game over.
                             curses.endwin()
                             exit(0)
                         else:
-                            board[y_idx][x_idx] = 'x'
-            tetrimino_indexes[which] = 0
+                            board[y_idx][x_idx + 3] = 'x'
             blns['init_active_piece'] = False
 
             nextpieceboard.clear()
             # Show the human the next piece.
-            newposition = tetriminos[nextwhich]['pos'][0]
+            newposition = tetriminos[nextwhich]['pos']
             for [y_idx, y_val] in enumerate(newposition):
                 for [x_idx, x_val] in reversed(list(enumerate(newposition[y_idx]))):
                     if newposition[y_idx][x_idx]:
                         nextpieceboard.addstr(                              \
                             y_idx + 1,                                      \
-                            x_idx - 1,                                      \
+                            x_idx + 3,                                      \
                             'x',                                            \
                             curses.color_pair(tetriminos[nextwhich]['clr']) \
                         )
             nextpieceboard.addstr(                                          \
                 0,                                                          \
                 2,                                                          \
-                'Next',                                                   \
+                'Next',                                                     \
                 curses.color_pair(colormap['WHITE_TXT'])                    \
             )
             nextpieceboard.refresh()
+
+            scoreboard.addstr(                                              \
+                0,                                                          \
+                2,                                                          \
+                'Score',                                                    \
+                curses.color_pair(colormap['WHITE_TXT'])                    \
+            )
+            scoreboard.addstr(                                              \
+                1,                                                          \
+                2,                                                          \
+                str(score),                                                 \
+                curses.color_pair(colormap['RED_TXT'])                      \
+            )
+            scoreboard.refresh()
+
 
         # Keep track of the location of our active piece.
         [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
@@ -462,56 +425,38 @@ if __name__=='__main__':
         # Rotation.
         ##############################################
         if blns['rotate'] and not blns['collide_btm'] and not blns['slam']:
-            index = tetrimino_indexes[which]
-            if len(tetriminos[which]['pos']) > 1:
-                index += 1
-                if index > (len(tetriminos[which]['pos']) - 1):
-                    index = 0
-            position = tetriminos[which]['pos'][index]
+            current_x_offset = min(active_x_coordinates)
+            current_y_offset = min(active_y_coordinates)
 
-            current_offset = min(active_x_coordinates)
-            default_offset = boardxmax
-            for [y_idx, y_val] in enumerate(position):
-                for [x_idx, x_val] in enumerate(position[y_idx]):
+            position = tetrimino_positions[which]
+            prop_position = numpy.array(position)
+            transposed = prop_position.T
+            rotated = []
+            for [y_idx, y_val] in enumerate(transposed):
+                templist = []
+                for [x_idx, x_val] in reversed(list(enumerate(transposed[y_idx]))):
+                    templist.append(transposed[y_idx][x_idx])
+                rotated.append(templist)
+
+            ok_to_rotate = True
+            new_y_coordinates = []
+            new_x_coordinates = []
+            for [y_idx, y_val] in enumerate(rotated):
+                for [x_idx, x_val] in reversed(list(enumerate(rotated[y_idx]))):
                     if position[y_idx][x_idx]:
-                        if x_idx < default_offset:
-                            default_offset = x_idx
+                        new_y_coordinates.append(y_idx + current_y_offset)
+                        new_x_coordinates.append(x_idx + current_x_offset)
 
-            curses.endwin()
-            print 'hello world'
-            temp_position = position
-            # Equalize our offsets.
-            # Chop away columns until offset is same
-            # For each column chopped, add blank one to end.
-            while current_offset != default_offset:
-                if current_offset > default_offset:
-                    # Then we need to add a column to beginning and remove one from end.
-                    for outerrow in temp_position:
-                        outerrow.insert(0, 0)
-                        outerrow.pop()
-                    default_offset += 1
-                else:
-                    # Then we need to remove a column from beginning and add one to end
-                    for outerrow in temp_position:
-                        outerrow.insert(-1, 0)
-                        temp_position.pop(0)
-                    default_offset -= 1
-
-            #import pprint
-            #pprint.pprint(temp_position)
-            position = False
-            temp_position = False
-#
-#            tetrimino_indexes[which] = index
-#            #temp_y_coordinates = active_y_coordinates
-#            #temp_x_coordinates = active_x_coordinates
-#            # Rotate right... for each element in rotated_coordinates
-#            # check active coordinates to see if we're clobbering a piece.
-#            # We've rotated, so we need to update coordinates.
-#
-#            # ROTATION, DETERMIN PROPOSED COORDINATES, THEN CHECK FOR COLLISION
-#            # WITH BOTTOM, RIGHT AND LEFT
-#            [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
+            if ok_to_rotate:
+                for [y_idx, y_val] in enumerate(active_y_coordinates):
+                    x_val = active_x_coordinates[y_idx]
+                    board[y_val][x_val] = ''
+                for [y_idx, y_val] in enumerate(new_y_coordinates):
+                    x_val = new_x_coordinates[y_idx]
+                    board[y_val][x_val] = 'x'
+                tetrimino_positions[which] = rotated
+                [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
+                blns['init_active_piece'] = False
 
         ##############################################
         # Push down.
@@ -554,6 +499,7 @@ if __name__=='__main__':
             for idx in completed:
                 del(board[idx])
                 board.insert(0, templist)
+                score += (10 * len(completed))
             blns['init_active_piece'] = True
 
         # Reset booleans.
@@ -599,3 +545,7 @@ curses.endwin()
 
 # just use dash and pipe or whatever for border
 #nlines, ncols, beginy, beginx
+
+# ROTATE 2D LIST +90
+# 1. TRANSPOSE
+# 2. REVERSE EACH ROW
