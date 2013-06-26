@@ -14,7 +14,9 @@ see if I could do it all by myself.  That is,
 without reading the code from other tetris
 clones.  After all the backbone of this game
 simply involves the manipulation of a 2d
-array/list, right?
+array/list, right?  Update: wasn't able to do
+this without doing an internet search for help
+on the tetrimino rotation.
 
 Stuff:
     - Consider using a 22 row board
@@ -24,12 +26,16 @@ Stuff:
 
 """
 
-import numpy
-import curses
-from sys import exit
-from random import choice 
-from time import time, sleep
-from signal import signal, SIGINT
+try:
+    import numpy
+    import curses
+    from sys import exit
+    from random import choice 
+    from time import time, sleep
+    from signal import signal, SIGINT
+except ImportError, err:
+    print "Error Importing module. %s" % (err)
+    exit(1)
 
 ##############################################
 def signal_handler(signal, frame):
@@ -91,8 +97,8 @@ if __name__=='__main__':
     tetriminos['i'] = {            \
         'pos' : [                  \
                     [0, 0, 0, 0],  \
-                    [0, 0, 0, 0],  \
                     [1, 1, 1, 1],  \
+                    [0, 0, 0, 0],  \
                     [0, 0, 0, 0],  \
                 ],                 \
         'clr' : colormap['BLUE']   \
@@ -231,11 +237,11 @@ if __name__=='__main__':
 
     # Booleans
     blns = {}
-    blns['slam'] = False
     blns['rotate'] = False
     blns['blocking'] = False
     blns['push_left'] = False
     blns['push_right'] = False
+    blns['force_down'] = False
     blns['collide_btm'] = False
     blns['init_active_piece'] = True
 
@@ -286,7 +292,7 @@ if __name__=='__main__':
         elif event == curses.KEY_RIGHT:
             blns['push_right']= True
         elif event == curses.KEY_DOWN:
-            blns['slam']= True
+            blns['force_down']= True
 
         ##############################################
         # Initial draw of newly picked tetrimino.
@@ -343,7 +349,7 @@ if __name__=='__main__':
         # Keep track of the location of our active piece.
         [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
         time_to_push = False
-        if blns['slam'] or (time() - last_push_down) > 1:
+        if blns['force_down'] or (time() - last_push_down) > 1:
             time_to_push = True
 
         ##############################################
@@ -355,7 +361,6 @@ if __name__=='__main__':
                     if time_to_push:
                         if (y_idx + 1) >= boardymax:
                             blns['collide_btm'] = True
-                            blns['slam'] = False
                     else:
                         # Can't collide with bottom, not pushing.
                         blns['collide_btm'] = False
@@ -373,12 +378,11 @@ if __name__=='__main__':
                             # There is a piece below us.
                             # Set artificial collide_btm.
                             blns['collide_btm'] = True
-                            blns['slam'] = False
 
         ##############################################
         # Push left.
         ##############################################
-        if blns['push_left'] and not blns['collide_btm'] and not blns['slam']:
+        if blns['push_left'] and not blns['collide_btm']:
             ok_to_push = True
             min_x = min(active_x_coordinates)
             for [y_idx, y_val] in enumerate(active_y_coordinates):
@@ -401,7 +405,7 @@ if __name__=='__main__':
         ##############################################
         # Push right.
         ##############################################
-        if blns['push_right'] and not blns['collide_btm'] and not blns['slam']:
+        if blns['push_right'] and not blns['collide_btm']:
             ok_to_push = True
             max_x = max(active_x_coordinates)
             for [y_idx, y_val] in reversed(list(enumerate(active_y_coordinates))):
@@ -424,7 +428,7 @@ if __name__=='__main__':
         ##############################################
         # Rotation.
         ##############################################
-        if blns['rotate'] and not blns['collide_btm'] and not blns['slam']:
+        if blns['rotate'] and not blns['collide_btm']:
             current_x_offset = min(active_x_coordinates)
             current_y_offset = min(active_y_coordinates)
 
@@ -444,6 +448,12 @@ if __name__=='__main__':
             for [y_idx, y_val] in enumerate(rotated):
                 for [x_idx, x_val] in reversed(list(enumerate(rotated[y_idx]))):
                     if position[y_idx][x_idx]:
+                        curses.endwin()
+                        print 'y_idx => ' + str(y_idx)
+                        print 'current_y_offset => ' + str(current_y_offset)
+                        print 'x_idx => ' + str(x_idx)
+                        print 'current_x_offset => ' + str(current_x_offset)
+                        print ''
                         new_y_coordinates.append(y_idx + current_y_offset)
                         new_x_coordinates.append(x_idx + current_x_offset)
 
@@ -506,6 +516,7 @@ if __name__=='__main__':
         blns['rotate'] = False
         blns['push_left'] = False
         blns['push_right'] = False
+        blns['force_down']= False
 
         x = 0
         y = 0
@@ -532,8 +543,7 @@ if __name__=='__main__':
             x = 0
         gamebox.refresh()
 
-        if not blns['slam']:
-            sleep(100/1000000.0)
+        sleep(100/1000000.0)
 
 curses.endwin()
 
