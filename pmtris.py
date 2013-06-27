@@ -89,9 +89,9 @@ if __name__=='__main__':
     }
     tetriminos['z'] = {            \
         'pos' : [                  \
-                    [0, 0, 0],     \
                     [1, 1, 0],     \
                     [0, 1, 1],     \
+                    [0, 0, 0],     \
                 ],                 \
         'clr' : colormap['RED']    \
     }
@@ -122,17 +122,17 @@ if __name__=='__main__':
     }
     tetriminos['s'] = {            \
         'pos' : [                  \
-                    [0, 0, 0],     \
                     [0, 1, 1],     \
                     [1, 1, 0],     \
+                    [0, 0, 0],     \
                 ],                 \
         'clr' : colormap['GREEN']  \
     }
     tetriminos['t'] = {            \
         'pos' : [                  \
-                    [0, 0, 0],     \
                     [1, 1, 1],     \
                     [0, 1, 0],     \
+                    [0, 0, 0],     \
                 ],                 \
         'clr' : colormap['CYAN']   \
     }
@@ -311,15 +311,15 @@ if __name__=='__main__':
             position = tetriminos[which]['pos']
             tetrimino_positions[which] = position
             for [y_idx, y_val] in enumerate(position):
-                for [x_idx, x_val] in reversed(list(enumerate(position[y_idx]))):
+                for [x_idx, x_val] in enumerate(position[y_idx]):
                     if position[y_idx][x_idx]:
-                        if board[y_idx][x_idx + 3]:
+                        if board[y_idx][x_idx + 4]:
                             # Can't init piece, game over.
                             curses.endwin()
                             print 'Game Over'
                             exit(3)
                         else:
-                            board[y_idx][x_idx + 3] = 'x'
+                            board[y_idx][x_idx + 4] = 'x'
             blns['init_active_piece'] = False
 
             nextpieceboard.clear()
@@ -447,6 +447,9 @@ if __name__=='__main__':
             current_x_offset = min(active_x_coordinates)
             current_y_offset = min(active_y_coordinates)
 
+            # ROTATE 2D LIST +90
+            # 1. TRANSPOSE
+            # 2. REVERSE EACH ROW
             position = tetrimino_positions[which]
             prop_position = numpy.array(position)
             transposed = prop_position.T
@@ -563,6 +566,16 @@ if __name__=='__main__':
                 x += 1
             y += 1
             x = 1
+
+        # Add ghost so human knows where tetrimino will land.
+        for i in active_x_coordinates:
+            gamebox.addstr(                              \
+                boardymax,                               \
+                i + 1,                                   \
+                '^',                                     \
+                curses.color_pair(colormap['WHITE_TXT']) \
+            )
+
         # Blit curses buffer.
         gamebox.refresh()
 
@@ -572,14 +585,8 @@ if __name__=='__main__':
 curses.endwin()
 
 # TODO
-# DO TESTING TO ENSURE LINE FILL WORKS
-# FOR EACH ITERATION OF BOTH THE LOGO AND 
-# BOARD LOOPS, CHECK WINDOW SIZE TO MAKE
-# SURE HUMAN HASN'T SHRUNK IT.
+# DO TESTING FOR EACH ITERATION OF 
+# INFINITE LOOP TO MAKE SURE IT HASN'T SHRUNK.
 
-# just use dash and pipe or whatever for border
-#nlines, ncols, beginy, beginx
-
-# ROTATE 2D LIST +90
-# 1. TRANSPOSE
-# 2. REVERSE EACH ROW
+# MAKE SURE NEW ROW IS BEING ADDED TO BEGINNING
+# OF BOARD WHEN WE HAVE A FULL ROW.
