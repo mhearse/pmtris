@@ -205,7 +205,7 @@ if __name__=='__main__':
 
     # Create gamebox.
     gamebox = myscreen.derwin(                   \
-        boardymax + 1,                           \
+        boardymax + 2,                           \
         boardxmax + 2,                           \
         boardstarty,                             \
         boardstartx,                             \
@@ -246,6 +246,8 @@ if __name__=='__main__':
     blns['collide_btm'] = False
     blns['init_active_piece'] = True
 
+    force_down_threshold = .15
+
     # Declare our score.
     score = 0
 
@@ -272,6 +274,12 @@ if __name__=='__main__':
                 nextwhich = choice(tetriminos.keys())
             blns['init_active_piece'] = True
             blns['collide_btm'] = False
+
+        # Reset booleans.
+        blns['rotate'] = False
+        blns['push_left'] = False
+        blns['push_right'] = False
+        blns['force_down']= False
 
         event = myscreen.getch()
         if event == ord('q'):
@@ -352,8 +360,12 @@ if __name__=='__main__':
         # Keep track of the location of our active piece.
         [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
         time_to_push = False
-        if blns['force_down'] or (time() - last_push_down) > 1:
+        if (time() - last_push_down) > 1:
             time_to_push = True
+
+        if blns['force_down']:
+            if (time() - last_push_down) > force_down_threshold:
+                time_to_push = True
 
         ##############################################
         # Check for collision with bottom.
@@ -520,6 +532,7 @@ if __name__=='__main__':
         y = 0
         gamebox.erase()
         for outerrow in board:
+            # Ugly borders.
             gamebox.addstr(                              \
                 y,                                       \
                 0,                                       \
@@ -550,15 +563,11 @@ if __name__=='__main__':
                 x += 1
             y += 1
             x = 1
+        # Blit curses buffer.
         gamebox.refresh()
 
-        sleep(100/1000000.0)
-
-        # Reset booleans.
-        blns['rotate'] = False
-        blns['push_left'] = False
-        blns['push_right'] = False
-        blns['force_down']= False
+        # This fractional sleep prevents overconsumption of cpu time.
+        sleep(10/1000000.0)
 
 curses.endwin()
 
