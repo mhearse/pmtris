@@ -23,6 +23,7 @@ Stuff:
     - Consider weighing random tetrimino selection
     - Add ghost tetrimino to bottom, so human knows
       where it will land
+    - Research python integer data types.. for score.
 
 """
 
@@ -205,7 +206,7 @@ if __name__=='__main__':
     # Create gamebox.
     gamebox = myscreen.derwin(                   \
         boardymax + 1,                           \
-        boardxmax + 1,                           \
+        boardxmax + 2,                           \
         boardstarty,                             \
         boardstartx,                             \
     )
@@ -275,7 +276,8 @@ if __name__=='__main__':
         event = myscreen.getch()
         if event == ord('q'):
             curses.endwin()
-            exit(0)
+            print 'Bye'
+            exit(2)
         elif event == ord('p'):
             # Handle pause/unpause.
             # NEED TO FREEZE PUSH TIME
@@ -306,7 +308,8 @@ if __name__=='__main__':
                         if board[y_idx][x_idx + 3]:
                             # Can't init piece, game over.
                             curses.endwin()
-                            exit(0)
+                            print 'Game Over'
+                            exit(3)
                         else:
                             board[y_idx][x_idx + 3] = 'x'
             blns['init_active_piece'] = False
@@ -491,38 +494,44 @@ if __name__=='__main__':
         # Filled row check.
         ##############################################
         # Start from the bottom up.
-        completed = []
-        for [y_idx, y_val] in reversed(list(enumerate(board))):
-            complete_row = True
-            for [x_idx, x_val] in enumerate(board[y_idx]):
-                if not board[y_idx][x_idx]:
-                    complete_row = False
-            if complete_row:
-                completed.append(y_idx)
-
-        # If human has filled a row. Delete it then add
-        # a fresh one to the beginning.
-        if completed:
-            templist = []
-            for i in range(boardxmin, boardxmax):
-                templist.append('')
-            for idx in completed:
-                del(board[idx])
-                board.insert(0, templist)
-                score += (10 * len(completed))
-            blns['init_active_piece'] = True
-
-        # Reset booleans.
-        blns['rotate'] = False
-        blns['push_left'] = False
-        blns['push_right'] = False
-        blns['force_down']= False
-
-        x = 0
-        y = 0
+        if blns['collide_btm']:
+            completed = []
+            for [y_idx, y_val] in reversed(list(enumerate(board))):
+                complete_row = True
+                for [x_idx, x_val] in enumerate(board[y_idx]):
+                    if not board[y_idx][x_idx]:
+                        complete_row = False
+                if complete_row:
+                    completed.append(y_idx)
     
+            # If human has filled a row. Delete it then add
+            # a fresh one to the beginning.
+            if completed:
+                templist = []
+                for i in range(boardxmin, boardxmax):
+                    templist.append('')
+                for idx in completed:
+                    del(board[idx])
+                    board.insert(0, templist)
+                    score += (10 * len(completed))
+                blns['init_active_piece'] = True
+
+        x = 1
+        y = 0
         gamebox.erase()
         for outerrow in board:
+            gamebox.addstr(                              \
+                y,                                       \
+                0,                                       \
+                '|',                                     \
+                curses.color_pair(colormap['WHITE_TXT']) \
+            )
+            gamebox.addstr(                              \
+                y,                                       \
+                boardxmax + 1,                           \
+                '|',                                     \
+                curses.color_pair(colormap['WHITE_TXT']) \
+            )
             for innerrow in outerrow:
                 piece = innerrow
                 if innerrow == 'x':
@@ -532,18 +541,24 @@ if __name__=='__main__':
                     color = colormap['BLACK']
                 else:
                     color = tetriminos[piece]['clr']
-                gamebox.addstr(              \
-                    y,                       \
-                    x,                       \
-                    innerrow,                \
-                    curses.color_pair(color) \
+                gamebox.addstr(                          \
+                    y,                                   \
+                    x,                                   \
+                    innerrow,                            \
+                    curses.color_pair(color)             \
                 )
                 x += 1
             y += 1
-            x = 0
+            x = 1
         gamebox.refresh()
 
         sleep(100/1000000.0)
+
+        # Reset booleans.
+        blns['rotate'] = False
+        blns['push_left'] = False
+        blns['push_right'] = False
+        blns['force_down']= False
 
 curses.endwin()
 
