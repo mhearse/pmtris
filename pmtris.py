@@ -567,7 +567,7 @@ if __name__=='__main__':
         gamebox.refresh()
 
         # This fractional sleep prevents overconsumption of cpu time.
-        sleep(10/1000000.0)
+        sleep(18750/1000000.0)
 
 curses.endwin()
 
