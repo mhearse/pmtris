@@ -21,8 +21,6 @@ on the tetrimino rotation.
 Stuff:
     - Consider using a 22 row board
     - Consider weighing random tetrimino selection
-    - Add ghost tetrimino to bottom, so human knows
-      where it will land
     - Research python integer data types.. for score.
 
 """
@@ -281,6 +279,7 @@ if __name__=='__main__':
         blns['push_right'] = False
         blns['force_down']= False
 
+        # Receive human's input.
         event = myscreen.getch()
         if event == ord('q'):
             curses.endwin()
@@ -466,12 +465,6 @@ if __name__=='__main__':
             for [y_idx, y_val] in enumerate(rotated):
                 for [x_idx, x_val] in reversed(list(enumerate(rotated[y_idx]))):
                     if position[y_idx][x_idx]:
-                        curses.endwin()
-                        print 'y_idx => ' + str(y_idx)
-                        print 'current_y_offset => ' + str(current_y_offset)
-                        print 'x_idx => ' + str(x_idx)
-                        print 'current_x_offset => ' + str(current_x_offset)
-                        print ''
                         new_y_coordinates.append(y_idx + current_y_offset)
                         new_x_coordinates.append(x_idx + current_x_offset)
 
