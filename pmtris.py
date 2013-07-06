@@ -303,6 +303,13 @@ if __name__=='__main__':
         elif event == curses.KEY_DOWN:
             blns['force_down']= True
 
+        # Check window size.
+        [max_y, max_x] = myscreen.getmaxyx()
+        if max_y < 25 or max_x < 80:
+            curses.endwin()
+            print 'Screen too small.  Must be at least 80x25'
+            exit(2)
+
         ##############################################
         # Initial draw of newly picked tetrimino.
         ##############################################
