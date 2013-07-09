@@ -474,6 +474,12 @@ if __name__=='__main__':
                     if rotated[y_idx][x_idx]:
                         new_y_coordinates.append(y_idx + current_y_offset)
                         new_x_coordinates.append(x_idx + current_x_offset)
+                        if (x_idx + current_x_offset) >= boardxmax:
+                            ok_to_rotate = False
+                            break
+                        if board[y_idx + current_y_offset][x_idx + current_x_offset] != 'x':
+                            if board[y_idx + current_y_offset][x_idx + current_x_offset]:
+                                ok_to_rotate = False
 
             if ok_to_rotate:
                 for [y_idx, y_val] in enumerate(active_y_coordinates):
