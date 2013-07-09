@@ -471,7 +471,7 @@ if __name__=='__main__':
             new_x_coordinates = []
             for [y_idx, y_val] in enumerate(rotated):
                 for [x_idx, x_val] in reversed(list(enumerate(rotated[y_idx]))):
-                    if position[y_idx][x_idx]:
+                    if rotated[y_idx][x_idx]:
                         new_y_coordinates.append(y_idx + current_y_offset)
                         new_x_coordinates.append(x_idx + current_x_offset)
 
@@ -484,7 +484,6 @@ if __name__=='__main__':
                     board[y_val][x_val] = 'x'
                 tetrimino_positions[which] = rotated
                 [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
-                blns['init_active_piece'] = False
 
         ##############################################
         # Push down.
