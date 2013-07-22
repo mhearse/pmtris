@@ -23,6 +23,14 @@ Stuff:
     - Consider weighing random tetrimino selection
     - Research python integer data types.. for score.
 
+DEBUG:
+    Adjust the pos for tetrimino so that offset
+    isn't broken when it's rotated?
+
+    Stop timer when pause key is pressed.
+
+    Find a way to get entire key press queue from curses
+
 """
 
 try:
