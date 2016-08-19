@@ -69,13 +69,13 @@ if __name__=='__main__':
     signal(SIGINT, signal_handler)
 
     # Map Color names to numbers.
-    colormap = {                             \
-        'BLACK'      : 1,  'BLUE'      : 2,  \
-        'GREEN'      : 3,  'YELLOW'    : 4,  \
-        'MAGENTA'    : 5,  'CYAN'      : 6,  \
-        'WHITE'      : 7,  'RED'       : 8,  \
-        'WHITE_TXT'  : 9,  'RED_TXT'   : 10, \
-        'BLUE_TXT'   : 11, 'GREEN_TXT' : 12, \
+    colormap = {
+        'BLACK'      : 1,  'BLUE'      : 2,
+        'GREEN'      : 3,  'YELLOW'    : 4,
+        'MAGENTA'    : 5,  'CYAN'      : 6,
+        'WHITE'      : 7,  'RED'       : 8,
+        'WHITE_TXT'  : 9,  'RED_TXT'   : 10,
+        'BLUE_TXT'   : 11, 'GREEN_TXT' : 12,
     }
 
     # Define game tetriminos (game pieces)
@@ -86,55 +86,55 @@ if __name__=='__main__':
     # humans may easily read this code and make
     # changes to tetrimino layouts.
     tetriminos = {}
-    tetriminos['o'] = {            \
-        'pos' : [                  \
-                    [1, 1],        \
-                    [1, 1],        \
-                ],                 \
-        'clr' : colormap['YELLOW'] \
+    tetriminos['o'] = {
+        'pos' : [
+                    [1, 1],
+                    [1, 1],
+                ],
+        'clr' : colormap['YELLOW']
     }
-    tetriminos['z'] = {            \
-        'pos' : [                  \
-                    [1, 1, 0],     \
-                    [0, 1, 1],     \
-                ],                 \
-        'clr' : colormap['RED']    \
+    tetriminos['z'] = {
+        'pos' : [
+                    [1, 1, 0],
+                    [0, 1, 1],
+                ],
+        'clr' : colormap['RED']
     }
-    tetriminos['i'] = {            \
-        'pos' : [                  \
-                    [1, 1, 1, 1],  \
-                ],                 \
-        'clr' : colormap['BLUE']   \
+    tetriminos['i'] = {
+        'pos' : [
+                    [1, 1, 1, 1],
+                ],
+        'clr' : colormap['BLUE']
     }
-    tetriminos['l'] = {            \
-        'pos' : [                  \
-                    [1, 0],     \
-                    [1, 0],     \
-                    [1, 1],     \
-                ],                 \
-        'clr' : colormap['MAGENTA']\
+    tetriminos['l'] = {
+        'pos' : [
+                    [1, 0],
+                    [1, 0],
+                    [1, 1],
+                ],
+        'clr' : colormap['MAGENTA']
     }
-    tetriminos['j'] = {            \
-        'pos' : [                  \
-                    [0, 1],     \
-                    [0, 1],     \
-                    [1, 1],     \
-                ],                 \
-        'clr' : colormap['WHITE']  \
+    tetriminos['j'] = {
+        'pos' : [
+                    [0, 1],
+                    [0, 1],
+                    [1, 1],
+                ],
+        'clr' : colormap['WHITE']
     }
-    tetriminos['s'] = {            \
-        'pos' : [                  \
-                    [0, 1, 1],     \
-                    [1, 1, 0],     \
-                ],                 \
-        'clr' : colormap['GREEN']  \
+    tetriminos['s'] = {
+        'pos' : [
+                    [0, 1, 1],
+                    [1, 1, 0],
+                ],
+        'clr' : colormap['GREEN']
     }
-    tetriminos['t'] = {            \
-        'pos' : [                  \
-                    [1, 1, 1],     \
-                    [0, 1, 0],     \
-                ],                 \
-        'clr' : colormap['CYAN']   \
+    tetriminos['t'] = {
+        'pos' : [
+                    [1, 1, 1],
+                    [0, 1, 0],
+                ],
+        'clr' : colormap['CYAN']
     }
 
     tetrimino_positions = {}
@@ -204,28 +204,28 @@ if __name__=='__main__':
     curses.init_pair(12, curses.COLOR_GREEN,   curses.COLOR_BLACK)
 
     # Create gamebox.
-    gamebox = myscreen.derwin(                   \
-        boardymax + 2,                           \
-        boardxmax + 2,                           \
-        boardstarty,                             \
-        boardstartx,                             \
+    gamebox = myscreen.derwin(
+        boardymax + 2,
+        boardxmax + 2,
+        boardstarty,
+        boardstartx,
     )
     gamebox.border(0)
 
     # Create scoreboard.
-    scoreboard = myscreen.derwin(                \
-        scoreboardheight,                        \
-        scoreboardwidth,                         \
-        scoreboardstarty,                        \
-        scoreboardstartx,                        \
+    scoreboard = myscreen.derwin(
+        scoreboardheight,
+        scoreboardwidth,
+        scoreboardstarty,
+        scoreboardstartx,
     )
 
     # Create nextpiece.
-    nextpieceboard = myscreen.derwin(            \
-        nextpieceboardheight,                    \
-        nextpieceboardwidth,                     \
-        nextpieceboardstarty,                    \
-        nextpieceboardstartx,                    \
+    nextpieceboard = myscreen.derwin(
+        nextpieceboardheight,
+        nextpieceboardwidth,
+        nextpieceboardstarty,
+        nextpieceboardstartx,
     )
 
     scoreboard.refresh()
@@ -336,31 +336,31 @@ if __name__=='__main__':
             for [y_idx, y_val] in enumerate(newposition):
                 for [x_idx, x_val] in reversed(list(enumerate(newposition[y_idx]))):
                     if newposition[y_idx][x_idx]:
-                        nextpieceboard.addstr(                              \
-                            y_idx + 1,                                      \
-                            x_idx + 3,                                      \
-                            'x',                                            \
-                            curses.color_pair(tetriminos[nextwhich]['clr']) \
+                        nextpieceboard.addstr(
+                            y_idx + 1,
+                            x_idx + 3,
+                            'x',
+                            curses.color_pair(tetriminos[nextwhich]['clr'])
                         )
-            nextpieceboard.addstr(                                          \
-                0,                                                          \
-                2,                                                          \
-                'Next',                                                     \
-                curses.color_pair(colormap['WHITE_TXT'])                    \
+            nextpieceboard.addstr(
+                0,
+                2,
+                'Next',
+                curses.color_pair(colormap['WHITE_TXT'])
             )
             nextpieceboard.refresh()
 
-            scoreboard.addstr(                                              \
-                0,                                                          \
-                2,                                                          \
-                'Score',                                                    \
-                curses.color_pair(colormap['WHITE_TXT'])                    \
+            scoreboard.addstr(
+                0,
+                2,
+                'Score',
+                curses.color_pair(colormap['WHITE_TXT'])
             )
-            scoreboard.addstr(                                              \
-                1,                                                          \
-                2,                                                          \
-                str(score),                                                 \
-                curses.color_pair(colormap['RED_TXT'])                      \
+            scoreboard.addstr(
+                1,
+                2,
+                str(score),
+                curses.color_pair(colormap['RED_TXT'])
             )
             scoreboard.refresh()
 
@@ -543,17 +543,17 @@ if __name__=='__main__':
         gamebox.erase()
         for outerrow in board:
             # Ugly borders.
-            gamebox.addstr(                              \
-                y,                                       \
-                0,                                       \
-                '|',                                     \
-                curses.color_pair(colormap['WHITE_TXT']) \
+            gamebox.addstr(
+                y,
+                0,
+                '|',
+                curses.color_pair(colormap['WHITE_TXT'])
             )
-            gamebox.addstr(                              \
-                y,                                       \
-                boardxmax + 1,                           \
-                '|',                                     \
-                curses.color_pair(colormap['WHITE_TXT']) \
+            gamebox.addstr(
+                y,
+                boardxmax + 1,
+                '|',
+                curses.color_pair(colormap['WHITE_TXT'])
             )
             for innerrow in outerrow:
                 piece = innerrow
@@ -564,11 +564,11 @@ if __name__=='__main__':
                     color = colormap['BLACK']
                 else:
                     color = tetriminos[piece]['clr']
-                gamebox.addstr(                          \
-                    y,                                   \
-                    x,                                   \
-                    innerrow,                            \
-                    curses.color_pair(color)             \
+                gamebox.addstr(
+                    y,
+                    x,
+                    innerrow,
+                    curses.color_pair(color)
                 )
                 x += 1
             y += 1
@@ -576,11 +576,11 @@ if __name__=='__main__':
 
         # Add ghost so human knows where tetrimino will land.
         for i in active_x_coordinates:
-            gamebox.addstr(                              \
-                boardymax,                               \
-                i + 1,                                   \
-                '^',                                     \
-                curses.color_pair(colormap['WHITE_TXT']) \
+            gamebox.addstr(
+                boardymax,
+                i + 1,
+                '^',
+                curses.color_pair(colormap['WHITE_TXT'])
             )
 
         # Blit curses buffer.
