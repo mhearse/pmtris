@@ -16,33 +16,57 @@ clones.  After all the backbone of this game
 simply involves the manipulation of a 2d
 array/list, right?  Update: wasn't able to do
 this without doing an internet search for help
-on the tetrimino rotation.
+on the tetrimino rotation.  Which involes transposition
+and reversal.
 
 Stuff:
-    - Consider using a 22 row board
-    - Consider weighing random tetrimino selection
-    - Research python integer data types.. for score.
+    Consider weighing random tetrimino selection
 
 DEBUG:
-    Adjust the pos for tetrimino so that offset
-    isn't broken when it's rotated?
-
     Stop timer when pause key is pressed.
-
-    Find a way to get entire key press queue from curses
 
 """
 
 try:
     import numpy
     import curses
+    import optparse
     from sys import exit
+    from os import remove
     from random import choice 
+    from pickle import load, dump
     from time import time, sleep
+    from os.path import expanduser
     from signal import signal, SIGINT
 except ImportError, err:
     print "Error Importing module. %s" % (err)
     exit(1)
+
+##############################################
+def get_options():
+##############################################
+    # Process command line options
+    OptionParser = optparse.OptionParser
+    extra = "Keyboard input: down arrow: push down, left arrow: push left, right arrow: push right, up arrow: rotate, q: quit, p: pause, s: save state and exit"
+
+    parser = OptionParser(epilog=extra)
+    parser.add_option(
+        '-s',
+        '--load-save',
+        action = 'store_true',
+        dest   = 'load_save',
+        help   = 'Load last game saved'
+    )
+    parser.add_option(
+        '-c',
+        '--clear-save',
+        action = 'store_true',
+        dest   = 'clear_save',
+        help   = 'Clear last game saved'
+    )
+
+    (options, args) = parser.parse_args()
+    return (options, args)
 
 ##############################################
 def signal_handler(signal, frame):
@@ -67,6 +91,18 @@ if __name__=='__main__':
 ##############################################
     # Signal handler for sigint
     signal(SIGINT, signal_handler)
+
+    # Process command line opts.
+    (options, args) = get_options()
+
+    # Clear save state.
+    if options.clear_save:
+        try:
+            remove(expanduser('~/.pmtris_save'))
+            exit()
+        except OSError, err:
+            print "Error deleting save state. %s" % (err)
+            exit(1)
 
     # Map Color names to numbers.
     colormap = {
@@ -166,13 +202,40 @@ if __name__=='__main__':
     boardxmin = 0
     boardxmax = 10
 
+    # Booleans
+    blns = {}
+    blns['rotate'] = False
+    blns['blocking'] = False
+    blns['push_left'] = False
+    blns['push_right'] = False
+    blns['force_down'] = False
+    blns['collide_btm'] = False
+    blns['init_active_piece'] = True
+
+    # Declare our current piece.
+    which = ''
+
+    # Declare our next piece.
+    nextwhich = ''
+
+    # Declare our score.
+    score = 0
+
     # Init board.
-    templist = []
-    for i in range(boardymin, boardymax):
-        for j in range(boardxmin, boardxmax):
-            templist.append('')
-        board.append(templist)
+    if options.load_save:
+        mydict = load(open(expanduser('~/.pmtris_save'), "rb"))
+        board = mydict['board']
+        which = mydict['which']
+        score = mydict['score']
+        nextwhich = mydict['nextwhich']
+        blns['init_active_piece'] = False
+    else:
         templist = []
+        for i in range(boardymin, boardymax):
+            for j in range(boardxmin, boardxmax):
+                templist.append('')
+            board.append(templist)
+            templist = []
 
     # Init curses.
     myscreen = curses.initscr()
@@ -236,26 +299,7 @@ if __name__=='__main__':
     # we are using whole seconds.
     last_push_down = time()
 
-    # Booleans
-    blns = {}
-    blns['rotate'] = False
-    blns['blocking'] = False
-    blns['push_left'] = False
-    blns['push_right'] = False
-    blns['force_down'] = False
-    blns['collide_btm'] = False
-    blns['init_active_piece'] = True
-
     force_down_threshold = .15
-
-    # Declare our score.
-    score = 0
-
-    # Declare our current piece.
-    which = ''
-
-    # Declare our next piece.
-    nextwhich = ''
 
     # Clear intro screen and start game.
     gamebox.erase()
@@ -296,6 +340,14 @@ if __name__=='__main__':
             else:
                 myscreen.timeout(0)
                 blns['blocking'] = False
+        elif event == ord('s'):
+            dump(
+                {'board':board, 'which':which, 'nextwhich':nextwhich, 'score':score},
+                open(expanduser('~/.pmtris_save'), 'wb')
+            )
+            curses.endwin()
+            print 'Game saved, Bye'
+            exit(3)
         elif event == curses.KEY_UP:
             blns['rotate'] = True
         elif event == curses.KEY_LEFT:
@@ -329,41 +381,6 @@ if __name__=='__main__':
                         else:
                             board[y_idx][x_idx + 4] = 'x'
             blns['init_active_piece'] = False
-
-            nextpieceboard.clear()
-            # Show the human the next piece.
-            newposition = tetriminos[nextwhich]['pos']
-            for [y_idx, y_val] in enumerate(newposition):
-                for [x_idx, x_val] in reversed(list(enumerate(newposition[y_idx]))):
-                    if newposition[y_idx][x_idx]:
-                        nextpieceboard.addstr(
-                            y_idx + 1,
-                            x_idx + 3,
-                            'x',
-                            curses.color_pair(tetriminos[nextwhich]['clr'])
-                        )
-            nextpieceboard.addstr(
-                0,
-                2,
-                'Next',
-                curses.color_pair(colormap['WHITE_TXT'])
-            )
-            nextpieceboard.refresh()
-
-            scoreboard.addstr(
-                0,
-                2,
-                'Score',
-                curses.color_pair(colormap['WHITE_TXT'])
-            )
-            scoreboard.addstr(
-                1,
-                2,
-                str(score),
-                curses.color_pair(colormap['RED_TXT'])
-            )
-            scoreboard.refresh()
-
 
         # Keep track of the location of our active piece.
         [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
@@ -598,6 +615,40 @@ if __name__=='__main__':
 
         # Blit curses buffer.
         gamebox.refresh()
+
+        nextpieceboard.clear()
+        nextpieceboard.addstr(
+            0,
+            2,
+            'Next',
+            curses.color_pair(colormap['WHITE_TXT'])
+        )
+        # Show the human the next piece.
+        newposition = tetriminos[nextwhich]['pos']
+        for [y_idx, y_val] in enumerate(newposition):
+            for [x_idx, x_val] in reversed(list(enumerate(newposition[y_idx]))):
+                if newposition[y_idx][x_idx]:
+                    nextpieceboard.addstr(
+                        y_idx + 1,
+                        x_idx + 3,
+                        'x',
+                        curses.color_pair(tetriminos[nextwhich]['clr'])
+                    )
+        nextpieceboard.refresh()
+
+        scoreboard.addstr(
+            0,
+            2,
+            'Score',
+            curses.color_pair(colormap['WHITE_TXT'])
+        )
+        scoreboard.addstr(
+            1,
+            2,
+            str(score),
+            curses.color_pair(colormap['RED_TXT'])
+        )
+        scoreboard.refresh()
 
         # This fractional sleep prevents overconsumption of cpu time.
         sleep(18750/1000000.0)
