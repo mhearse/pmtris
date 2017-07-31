@@ -527,7 +527,7 @@ if __name__=='__main__':
                     completed.append(y_idx)
     
             # If human has filled a row(s), add len(completed)
-            # blank rows to beginning.
+            # blank rows to beginning of new board.
             if completed:
                 tempboard = []
                 templist = []
@@ -537,6 +537,8 @@ if __name__=='__main__':
                     tempboard.append(templist)
                     templist = []
 
+                # Then add the rest of the existing board to
+                # the new board.  Skipping the completed rows.
                 for [y_idx, y_val] in enumerate(board):
                     if y_idx in completed:
                         continue
