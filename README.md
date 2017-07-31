@@ -3,6 +3,14 @@ pmtris
 
 Poor Man's Tetris Clone 
 
-Current status: Works, but plenty of bugs.  A rewrite will be coming soon.  I'm going to try to lessen the strain of dealing with 2d/3d arrays(lists).  The rewrite will be OO.  And I'm thinking for farming out the manipulation and searching of 2d/3d arrays to methods.  Ostensibly there only need be code to search a single deminsion array.  And methods can be created for 2d/3d, that simply do recursive calls to the single deminsion code.
+Current status: Works great!  Recently found and fixed a huge bug with row completion.  Presently, no known bugs.
+
+Before the promised OO rewirte, I plan to do the following:
+* Add a save state option.
+* Make the board size configurable by command line options.
+* Make it possible to flip the board (exercise my linear algebra muscles).
+* Add exception handling to curses calls.
+* Add verbose help for new command line opts, using optparse.
+* Possibly bring back title screen.
 
 ![screenshot](https://github.com/mhearse/pmtris/blob/master/screenshots/pmtris.png)
