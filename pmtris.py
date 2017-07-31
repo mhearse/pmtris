@@ -526,16 +526,27 @@ if __name__=='__main__':
                 if complete_row:
                     completed.append(y_idx)
     
-            # If human has filled a row. Delete it then add
-            # a fresh one to the beginning.
+            # If human has filled a row(s), add len(completed)
+            # blank rows to beginning.
             if completed:
+                tempboard = []
                 templist = []
-                for i in range(boardxmin, boardxmax):
-                    templist.append('')
-                for idx in completed:
-                    del(board[idx])
-                    board.insert(0, templist)
-                    score += (10 * len(completed))
+                for i in completed:
+                    for j in range(boardxmin, boardxmax):
+                        templist.append('')
+                    tempboard.append(templist)
+                    templist = []
+
+                for [y_idx, y_val] in enumerate(board):
+                    if y_idx in completed:
+                        continue
+                    for [x_idx, x_val] in enumerate(board[y_idx]):
+                        templist.append(x_val)
+                    tempboard.append(templist)
+                    templist = []
+
+                board = tempboard
+                score += (10 * len(completed))
                 blns['init_active_piece'] = True
 
         x = 1
