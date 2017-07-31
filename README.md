@@ -13,4 +13,4 @@ Before the promised OO rewirte, I plan to do the following:
 * Add verbose help for new command line opts, using optparse.
 * Possibly bring back title screen.
 
-![screenshot](https://github.com/mhearse/pmtris/blob/master/screenshots/pmtris.png)
+![](https://github.com/mhearse/pmtris/blob/master/screenshots/Screencast-2017.07.31-04.15.gif)
