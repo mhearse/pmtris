@@ -47,7 +47,7 @@ def get_options():
 ##############################################
     # Process command line options
     OptionParser = optparse.OptionParser
-    extra = "Keyboard input: down arrow: push down, left arrow: push left, right arrow: push right, up arrow: rotate, q: quit, p: pause, s: save state and exit"
+    extra = "Keyboard input: down arrow: push down, left arrow: push left, right arrow: push right, up arrow: rotate, space: slam to bottom, q: quit, p: pause, s: save state and exit"
 
     parser = OptionParser(epilog=extra)
     parser.add_option(
@@ -318,6 +318,7 @@ if __name__=='__main__':
                 nextwhich = choice(tetriminos.keys())
             blns['init_active_piece'] = True
             blns['collide_btm'] = False
+            force_down_threshold = .15
 
         # Reset booleans.
         blns['rotate'] = False
@@ -331,6 +332,8 @@ if __name__=='__main__':
             curses.endwin()
             print 'Bye'
             exit(2)
+        elif event == ord(' '):
+            force_down_threshold = 0
         elif event == ord('p'):
             # Handle pause/unpause.
             # NEED TO FREEZE PUSH TIME
@@ -391,6 +394,10 @@ if __name__=='__main__':
         if blns['force_down']:
             if (time() - last_push_down) > force_down_threshold:
                 time_to_push = True
+
+        # Slam to bottom.
+        if not force_down_threshold:
+            time_to_push = True
 
         ##############################################
         # Check for collision with bottom.

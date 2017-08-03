@@ -13,6 +13,7 @@ Before the promised OO rewirte, I plan to do the following:
 * Add optional jumbo board and pieces.
 
 Done
+* Add slam to bottom feature, via spacebar.
 * Add a save state option.
 * Add verbose help for new command line opts, using optparse.
 
