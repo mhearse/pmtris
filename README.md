@@ -17,4 +17,4 @@ Done
 * Add a save state option.
 * Add verbose help for new command line opts, using optparse.
 
-![](https://github.com/mhearse/pmtris/blob/master/screenshots/Screencast-2017.07.31-04.15.gif)
+![](https://github.com/mhearse/pmtris/blob/master/screenshots/Screencast-2017.08.03-15.32.gif)
