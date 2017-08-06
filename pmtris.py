@@ -345,7 +345,12 @@ if __name__=='__main__':
                 blns['blocking'] = False
         elif event == ord('s'):
             dump(
-                {'board':board, 'which':which, 'nextwhich':nextwhich, 'score':score},
+                {
+                    'board':board,
+                    'which':which,
+                    'nextwhich':nextwhich,
+                    'score':score
+                },
                 open(expanduser('~/.pmtris_save'), 'wb')
             )
             curses.endwin()
