@@ -13,7 +13,6 @@ Cloned by: Matt Hersant (matt_hersant[at]yahoo[dot]com)
 
 try:
     import numpy
-    import curses
     import optparse
     from sys import exit
     from os import remove
@@ -30,9 +29,6 @@ class pmtris:
     ##############################################
     def __init__(self, args=None):
     ##############################################
-        # Signal handler for sigint
-        self.signal(SIGINT, lambda _: curses.endwin(), exit(0))
-
         # Allow args to be optional.
         args = {} if args is None else args
 
@@ -189,7 +185,6 @@ class pmtris:
 
         (self.options, self.args) = get_options()
         self.init_board()
-        self.init_curses()
 
     # Clear save state.
     if options.clear_save:
@@ -261,147 +256,22 @@ class pmtris:
                 self.defaults.board.append(templist)
 
     ##############################################
-    def init_curses(self):
+    # Initial draw of newly picked tetrimino.
     ##############################################
-        # Init curses.
-        self.myscreen = curses.initscr()
-        # Non blocking.
-        self.myscreen.timeout(0)
-        # Suppress the human's input.
-        curses.noecho()
-        # Disable line buffering.
-        curses.cbreak()
-        # Hide cursor.
-        curses.curs_set(0)
-        # Enable processing of arrow keys.
-        self.myscreen.keypad(1)
-    
-        # Init colors.
-        curses.start_color()
-        curses.use_default_colors()
-        curses.init_pair(1,  curses.COLOR_BLACK,   curses.COLOR_BLACK)
-        curses.init_pair(2,  curses.COLOR_BLUE,    curses.COLOR_BLUE)
-        curses.init_pair(3,  curses.COLOR_GREEN,   curses.COLOR_GREEN)
-        curses.init_pair(4,  curses.COLOR_YELLOW,  curses.COLOR_YELLOW)
-        curses.init_pair(5,  curses.COLOR_MAGENTA, curses.COLOR_MAGENTA)
-        curses.init_pair(6,  curses.COLOR_CYAN,    curses.COLOR_CYAN)
-        curses.init_pair(7,  curses.COLOR_WHITE,   curses.COLOR_WHITE)
-        curses.init_pair(8,  curses.COLOR_RED,     curses.COLOR_RED)
-        curses.init_pair(9,  curses.COLOR_WHITE,   curses.COLOR_BLACK)
-        curses.init_pair(10, curses.COLOR_RED,     curses.COLOR_BLACK)
-        curses.init_pair(11, curses.COLOR_BLUE,    curses.COLOR_BLACK)
-        curses.init_pair(12, curses.COLOR_GREEN,   curses.COLOR_BLACK)
-    
-        # Create gamebox.
-        self.gamebox = self.myscreen.derwin(
-            self.defaults.boardymax + 2,
-            self.defaults.boardxmax + 2,
-            self.defaults.boardstarty,
-            self.defaults.boardstartx,
-        )
-        self.gamebox.border(0)
-    
-        # Create scoreboard.
-        self.scoreboard = self.myscreen.derwin(
-            self.defaults.scoreboardheight,
-            self.defaults.scoreboardwidth,
-            self.defaults.scoreboardstarty,
-            self.defaults.scoreboardstartx,
-        )
-    
-        # Create nextpiece.
-        self.nextpieceboard = self.myscreen.derwin(
-            self.defaults.nextpieceboardheight,
-            self.defaults.nextpieceboardwidth,
-            self.defaults.nextpieceboardstarty,
-            self.defaults.nextpieceboardstartx,
-        )
-    
-        self.scoreboard.refresh()
-        self.nextpieceboard.refresh()
-        self.gamebox.erase()
-
-##############################################
-if __name__=='__main__':
-##############################################
-    obj = pmtris(args)
-    # Aguirre, the Wrath of God.
-    # Begin our search for El Dorado.
-    while True:
-        # This block is run If we collide or we
-        # need to init a new tetrimino.  
-        if blns['collide_btm'] or blns['init_active_piece']:
-            if not which:
-                which = choice(tetriminos.keys())
-                nextwhich = choice(tetriminos.keys())
-            else:
-                which = nextwhich
-                nextwhich = choice(tetriminos.keys())
-            blns['init_active_piece'] = True
-            blns['collide_btm'] = False
-
-        # Reset booleans.
-        blns['rotate'] = False
-        blns['push_left'] = False
-        blns['push_right'] = False
-        blns['force_down']= False
-
-        # Receive human's input.
-        event = myscreen.getch()
-        if event == ord('q'):
-            curses.endwin()
-            print 'Bye'
-            exit(2)
-        elif event == ord('p'):
-            # Handle pause/unpause.
-            # NEED TO FREEZE PUSH TIME
-            if not blns['blocking']:
-                myscreen.timeout(-1)
-                blns['blocking'] = True
-            else:
-                myscreen.timeout(0)
-                blns['blocking'] = False
-        elif event == ord('s'):
-            dump(
-                {'board':board, 'which':which, 'nextwhich':nextwhich, 'score':score},
-                open(expanduser('~/.pmtris_save'), 'wb')
-            )
-            curses.endwin()
-            print 'Game saved, Bye'
-            exit(3)
-        elif event == curses.KEY_UP:
-            blns['rotate'] = True
-        elif event == curses.KEY_LEFT:
-            blns['push_left'] = True
-        elif event == curses.KEY_RIGHT:
-            blns['push_right']= True
-        elif event == curses.KEY_DOWN:
-            blns['force_down']= True
-
-        # Check window size.
-        [max_y, max_x] = myscreen.getmaxyx()
-        if max_y < 25 or max_x < 80:
-            curses.endwin()
-            print 'Screen too small.  Must be at least 80x25'
-            exit(2)
-
-        ##############################################
-        # Initial draw of newly picked tetrimino.
-        ##############################################
-        if blns['init_active_piece']:
-            position = tetriminos[which]['pos']
-            tetrimino_positions[which] = position
-            for [y_idx, y_val] in enumerate(position):
-                for [x_idx, x_val] in enumerate(position[y_idx]):
-                    if position[y_idx][x_idx]:
-                        if board[y_idx][x_idx + 4]:
-                            # Can't init piece, game over.
-                            curses.endwin()
-                            print 'Game Over'
-                            exit(3)
-                        else:
-                            board[y_idx][x_idx + 4] = 'x'
-            blns['init_active_piece'] = False
+    if blns['init_active_piece']:
+        position = tetriminos[which]['pos']
+        tetrimino_positions[which] = position
+        for [y_idx, y_val] in enumerate(position):
+            for [x_idx, x_val] in enumerate(position[y_idx]):
+                if position[y_idx][x_idx]:
+                    if board[y_idx][x_idx + 4]:
+                        # Can't init piece, game over.
+                        curses.endwin()
+                        print 'Game Over'
+                        exit(3)
+                    else:
+                        board[y_idx][x_idx + 4] = 'x'
+        blns['init_active_piece'] = False
 
         # Keep track of the location of our active piece.
         [ active_y_coordinates, active_x_coordinates ] = logActiveCoordinates(board)
@@ -588,6 +458,71 @@ if __name__=='__main__':
                 board = tempboard
                 score += (10 * len(completed))
                 blns['init_active_piece'] = True
+
+
+##############################################
+if __name__=='__main__':
+##############################################
+    obj = pmtris(args)
+    # Aguirre, the Wrath of God.
+    # Begin our search for El Dorado.
+    while True:
+        # This block is run If we collide or we
+        # need to init a new tetrimino.  
+        if blns['collide_btm'] or blns['init_active_piece']:
+            if not which:
+                which = choice(tetriminos.keys())
+                nextwhich = choice(tetriminos.keys())
+            else:
+                which = nextwhich
+                nextwhich = choice(tetriminos.keys())
+            blns['init_active_piece'] = True
+            blns['collide_btm'] = False
+
+        # Reset booleans.
+        blns['rotate'] = False
+        blns['push_left'] = False
+        blns['push_right'] = False
+        blns['force_down']= False
+
+        # Receive human's input.
+        event = myscreen.getch()
+        if event == ord('q'):
+            curses.endwin()
+            print 'Bye'
+            exit(2)
+        elif event == ord('p'):
+            # Handle pause/unpause.
+            # NEED TO FREEZE PUSH TIME
+            if not blns['blocking']:
+                myscreen.timeout(-1)
+                blns['blocking'] = True
+            else:
+                myscreen.timeout(0)
+                blns['blocking'] = False
+        elif event == ord('s'):
+            dump(
+                {'board':board, 'which':which, 'nextwhich':nextwhich, 'score':score},
+                open(expanduser('~/.pmtris_save'), 'wb')
+            )
+            curses.endwin()
+            print 'Game saved, Bye'
+            exit(3)
+        elif event == curses.KEY_UP:
+            blns['rotate'] = True
+        elif event == curses.KEY_LEFT:
+            blns['push_left'] = True
+        elif event == curses.KEY_RIGHT:
+            blns['push_right']= True
+        elif event == curses.KEY_DOWN:
+            blns['force_down']= True
+
+        # Check window size.
+        [max_y, max_x] = myscreen.getmaxyx()
+        if max_y < 25 or max_x < 80:
+            curses.endwin()
+            print 'Screen too small.  Must be at least 80x25'
+            exit(2)
 
         x = 1
         y = 0
