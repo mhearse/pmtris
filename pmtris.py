@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -38,8 +38,8 @@ try:
     from time import time, sleep
     from os.path import expanduser
     from signal import signal, SIGINT
-except ImportError, err:
-    print "Error Importing module. %s" % (err)
+except ImportError as err:
+    print("Error Importing module. %s" % (err))
     exit(1)
 
 ##############################################
@@ -100,8 +100,8 @@ if __name__=='__main__':
         try:
             remove(expanduser('~/.pmtris_save'))
             exit()
-        except OSError, err:
-            print "Error deleting save state. %s" % (err)
+        except OSError as err:
+            print("Error deleting save state. %s" % (err))
             exit(1)
 
     # Map Color names to numbers.
@@ -174,7 +174,7 @@ if __name__=='__main__':
     }
 
     tetrimino_positions = {}
-    for i in tetriminos.keys():
+    for i in list(tetriminos.keys()):
         tetrimino_positions[i] = tetriminos[i]['pos']
 
     # The status of our board will live here.
@@ -311,11 +311,11 @@ if __name__=='__main__':
         # need to init a new tetrimino.  
         if blns['collide_btm'] or blns['init_active_piece']:
             if not which:
-                which = choice(tetriminos.keys())
-                nextwhich = choice(tetriminos.keys())
+                which = choice(list(tetriminos.keys()))
+                nextwhich = choice(list(tetriminos.keys()))
             else:
                 which = nextwhich
-                nextwhich = choice(tetriminos.keys())
+                nextwhich = choice(list(tetriminos.keys()))
             blns['init_active_piece'] = True
             blns['collide_btm'] = False
             force_down_threshold = .15
@@ -330,7 +330,7 @@ if __name__=='__main__':
         event = myscreen.getch()
         if event == ord('q'):
             curses.endwin()
-            print 'Bye'
+            print('Bye')
             exit(2)
         elif event == ord(' '):
             force_down_threshold = 0
@@ -354,7 +354,7 @@ if __name__=='__main__':
                 open(expanduser('~/.pmtris_save'), 'wb')
             )
             curses.endwin()
-            print 'Game saved, Bye'
+            print('Game saved, Bye')
             exit(3)
         elif event == curses.KEY_UP:
             blns['rotate'] = True
@@ -369,7 +369,7 @@ if __name__=='__main__':
         [max_y, max_x] = myscreen.getmaxyx()
         if max_y < 25 or max_x < 80:
             curses.endwin()
-            print 'Screen too small.  Must be at least 80x25'
+            print('Screen too small.  Must be at least 80x25')
             exit(2)
 
         ##############################################
@@ -384,7 +384,7 @@ if __name__=='__main__':
                         if board[y_idx][x_idx + 4]:
                             # Can't init piece, game over.
                             curses.endwin()
-                            print 'Game Over'
+                            print('Game Over')
                             exit(3)
                         else:
                             board[y_idx][x_idx + 4] = 'x'
@@ -663,6 +663,7 @@ if __name__=='__main__':
         scoreboard.refresh()
 
         # This fractional sleep prevents overconsumption of cpu time.
-        sleep(18750/1000000.0)
+        if not time_to_push:
+            sleep(18750/1000000.0)
 
 curses.endwin()
