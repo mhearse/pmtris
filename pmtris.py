@@ -213,13 +213,13 @@ if __name__=='__main__':
     blns['init_active_piece'] = True
 
     # Declare our current piece.
-    which = ''
+    which = str('')
 
     # Declare our next piece.
-    nextwhich = ''
+    nextwhich = str('')
 
     # Declare our score.
-    score = 0
+    score = int(0)
 
     # Init board.
     if options.load_save:
@@ -662,7 +662,6 @@ if __name__=='__main__':
         )
         scoreboard.refresh()
 
-        # This fractional sleep prevents overconsumption of cpu time.
         if not time_to_push:
             sleep(18750/1000000.0)
 
